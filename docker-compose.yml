@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  nas-dop:
+    build: .
+    container_name: nas-dop
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      - ROOT=/data
+      - DB_PATH=/data/db/app.sqlite
+      - PORT=8080
+      - DEFAULT_ADMIN_USER=admin
+      - DEFAULT_ADMIN_PASSWORD=admin
+      - PUID=1000
+      - PGID=1000
+      - APP_NAME=Studio Photos
+      - SESSION_SECRET=change-this-secret-in-production
+    restart: unless-stopped

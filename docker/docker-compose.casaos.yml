@@ -1,0 +1,53 @@
+# CasaOS: x-casaos metadata, volumes, port. See docs/plan-from-scratch.md §9.
+# In CasaOS Custom App, use this file; set AppID or use CasaOS placeholders.
+
+services:
+  app:
+    image: studio-photos:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: studio-photos
+    restart: unless-stopped
+    ports:
+      - "10180:8080"
+    env_file: ../.env
+    environment:
+      PORT: "8080"
+      ROOT: /data/files
+      DB_PATH: /data/db/app.sqlite
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - /DATA/AppData/${AppID}/db:/data/db
+      - /DATA:/data/files
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "casaos.depends=placeholder"
+
+x-casaos:
+  type: custom
+  name: Studio Photos
+  description: Studio photo-sharing – one folder per customer, share link, mobile-first.
+  icon: https://cdn.jsdelivr.net/gh/CasaOS/docs@main/docs/img/casaos.svg
+  main: app
+  architectures:
+    - amd64
+    - arm64
+    - arm
+  port_map: "10180:8080"
+  envs:
+    - name: PUID
+      label: PUID
+      default: "1000"
+    - name: PGID
+      label: PGID
+      default: "1000"
+    - name: TZ
+      label: TZ
+      default: "Asia/Jakarta"

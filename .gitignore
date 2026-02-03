@@ -1,0 +1,16 @@
+# Secrets and local config
+.env
+
+# Local DB copies (FileBrowser SQLite)
+*.db
+
+# Local app-data paths (CasaOS AppData, etc.)
+/DATA/
+AppData/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

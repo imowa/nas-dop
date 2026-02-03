@@ -1,0 +1,69 @@
+{{define "admin/files"}}
+{{template "admin/base" .}}
+{{end}}
+
+{{define "title"}}Files{{end}}
+
+{{define "body"}}
+<h1>Files</h1>
+
+<!-- Breadcrumbs -->
+<nav>
+{{range .Breadcrumbs}}
+  <a href="/files{{.Path}}">{{.Name}}</a> /
+{{end}}
+</nav>
+
+<!-- Upload Form -->
+<form method="post" action="/files/upload" enctype="multipart/form-data">
+  <input type="hidden" name="path" value="{{.Path}}">
+  <input type="file" name="files" multiple>
+  <button type="submit">Upload</button>
+</form>
+
+<!-- Create Folder Form -->
+<form method="post" action="/files/mkdir">
+  <input type="hidden" name="path" value="{{.Path}}">
+  <input name="name" placeholder="New folder name" required>
+  <button type="submit">Create Folder</button>
+</form>
+
+<!-- File List -->
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Size</th>
+      <th>Modified</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range .Files}}
+    <tr>
+      <td>
+        {{if .IsDir}}
+          <a href="/files{{$.Path}}/{{.Name}}">📁 {{.Name}}</a>
+        {{else}}
+          📄 {{.Name}}
+        {{end}}
+      </td>
+      <td>{{if not .IsDir}}{{.Size}} bytes{{end}}</td>
+      <td>{{.ModTime.Format "2006-01-02 15:04"}}</td>
+      <td>
+        {{if not .IsDir}}
+          <a href="/files/download{{$.Path}}/{{.Name}}">Download</a>
+        {{end}}
+        <a href="/share/new?path={{$.Path}}/{{.Name}}">Share</a>
+        <form method="post" action="/files/delete" style="display:inline;">
+          <input type="hidden" name="path" value="{{$.Path}}/{{.Name}}">
+          <button type="submit" onclick="return confirm('Delete {{.Name}}?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+
+<p><a href="/logout">Logout</a></p>
+{{end}}

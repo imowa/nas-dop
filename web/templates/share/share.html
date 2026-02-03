@@ -1,0 +1,62 @@
+{{define "share/share"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Name}}</title>
+  <link rel="stylesheet" href="/static/css/share.css">
+</head>
+<body>
+<h1>{{.Name}}</h1>
+<p>Shared folder: {{.Path}}</p>
+
+<form id="zipForm" method="post" action="/share/{{.Token}}/zip">
+  <button type="submit">Download Selected as ZIP</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="selectAll"></th>
+        <th>Name</th>
+        <th>Size</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{range .Files}}
+      <tr>
+        <td>
+          {{if not .IsDir}}
+            <input type="checkbox" name="paths[]" value="{{.Name}}" class="fileCheckbox">
+          {{end}}
+        </td>
+        <td>
+          {{if .IsDir}}
+            📁 {{.Name}}
+          {{else}}
+            📄 {{.Name}}
+          {{end}}
+        </td>
+        <td>{{if not .IsDir}}{{.Size}} bytes{{end}}</td>
+        <td>
+          {{if not .IsDir}}
+            <a href="/share/{{$.Token}}/dl/{{.Name}}">Download</a>
+          {{end}}
+        </td>
+      </tr>
+    {{end}}
+    </tbody>
+  </table>
+</form>
+
+<script>
+// Select all functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.fileCheckbox');
+  checkboxes.forEach(cb => cb.checked = this.checked);
+});
+</script>
+</body>
+</html>
+{{end}}

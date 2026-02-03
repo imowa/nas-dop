@@ -1,0 +1,50 @@
+name: nas-dop
+services:
+  nas-dop:
+    image: nas-dop:latest
+    container_name: nas-dop
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /DATA/AppData/nas-dop/data
+        target: /data
+    environment:
+      ROOT: /data
+      DB_PATH: /data/db/app.sqlite
+      PORT: "8080"
+      DEFAULT_ADMIN_USER: admin
+      DEFAULT_ADMIN_PASSWORD: admin
+      PUID: "1000"
+      PGID: "1000"
+      APP_NAME: Studio Photos
+      SESSION_SECRET: change-this-secret-in-production
+    restart: unless-stopped
+    labels:
+      icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/nas-dop/icon.png
+      description:
+        en_us: Simple file sharing with public share links and thumbnails
+      tagline:
+        en_us: File sharing made simple
+      title:
+        en_us: Nas-Dop
+      category: Files
+      port_map: "8080"
+
+x-casaos:
+  architectures:
+    - amd64
+    - arm64
+    - arm
+  main: nas-dop
+  author: self
+  category: Files
+  description:
+    en_us: A simple file sharing application with admin interface and public share links. Features include file uploads, folder management, thumbnail generation, and ZIP downloads.
+  tagline:
+    en_us: File sharing made simple
+  title:
+    en_us: Nas-Dop
+  port_map: "8080"

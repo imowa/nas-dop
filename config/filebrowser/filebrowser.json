@@ -1,0 +1,3 @@
+{
+  "_comment": "Optional default config for custom Dockerfile build. Replace with output of: filebrowser config export"
+}

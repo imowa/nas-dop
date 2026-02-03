@@ -1,0 +1,217 @@
+/**
+ * FileBrowser custom theme: mobile-first, GDrive-like
+ * For studio photo sharing. Most customers open share links on their phone.
+ * Base styles = mobile; media queries enhance for larger screens.
+ * Re-test after FileBrowser upgrades (class names may change).
+ */
+
+/* === Base = mobile (GDrive-like) === */
+:root {
+  --gdrive-bg: #f8f9fa;
+  --gdrive-surface: #ffffff;
+  --gdrive-accent: #1a73e8;
+  --gdrive-accent-hover: #1557b0;
+  --gdrive-text: #202124;
+  --gdrive-text-secondary: #5f6368;
+  --gdrive-border: #dadce0;
+  --touch-min: 44px;
+  /* Safe area for notched phones (e.g. iPhone) */
+  --safe-top: env(safe-area-inset-top, 0);
+  --safe-bottom: env(safe-area-inset-bottom, 0);
+  --safe-left: env(safe-area-inset-left, 0);
+  --safe-right: env(safe-area-inset-right, 0);
+}
+
+body {
+  background-color: var(--gdrive-bg) !important;
+  color: var(--gdrive-text) !important;
+  font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 16px; /* Slightly larger base for mobile readability */
+  line-height: 1.5;
+  padding-left: var(--safe-left) !important;
+  padding-right: var(--safe-right) !important;
+  padding-bottom: var(--safe-bottom) !important;
+}
+
+/* Top bar / header */
+header,
+[class*="header"],
+[class*="navbar"],
+.navbar {
+  background-color: var(--gdrive-surface) !important;
+  border-bottom: 1px solid var(--gdrive-border) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  min-height: var(--touch-min) !important;
+}
+
+/* Sidebar */
+aside,
+[class*="sidebar"],
+[class*="side-bar"] {
+  background-color: var(--gdrive-surface) !important;
+  border-right: 1px solid var(--gdrive-border) !important;
+}
+
+/* Main content area – cards/grid */
+main,
+[class*="content"],
+[class*="file-list"],
+[class*="filelist"] {
+  background-color: var(--gdrive-bg) !important;
+}
+
+/* Cards / file items */
+[class*="card"],
+[class*="file-item"],
+[class*="fileitem"],
+[class*="item"] {
+  background-color: var(--gdrive-surface) !important;
+  border: 1px solid var(--gdrive-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Buttons – accent and touch-friendly */
+button,
+[class*="button"],
+.btn {
+  min-height: var(--touch-min) !important;
+  min-width: var(--touch-min) !important;
+  padding: 10px 16px !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+}
+
+button.primary,
+[class*="primary"],
+a[class*="button"] {
+  background-color: var(--gdrive-accent) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+button.primary:hover,
+[class*="primary"]:hover {
+  background-color: var(--gdrive-accent-hover) !important;
+}
+
+/* Links */
+a {
+  color: var(--gdrive-accent) !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  text-decoration: underline !important;
+}
+
+/* Share page – public view (mobile-first; most customers on phone) */
+[class*="share"],
+[class*="public"] {
+  background-color: var(--gdrive-bg) !important;
+  padding-left: var(--safe-left) !important;
+  padding-right: var(--safe-right) !important;
+  padding-bottom: var(--safe-bottom) !important;
+}
+
+/* Download buttons / links – large tap targets on share page */
+[class*="download"],
+[class*="download"] a,
+a[href*="/dl/"] {
+  min-height: var(--touch-min) !important;
+  padding: 12px 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* === Mobile-first: small screen is default; below = explicit mobile tweaks === */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  header,
+  [class*="header"],
+  .navbar {
+    min-height: var(--touch-min) !important;
+    padding: 8px 12px !important;
+  }
+
+  aside,
+  [class*="sidebar"] {
+    /* Collapse or hide on small screens; show as overlay if needed */
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  main,
+  [class*="content"],
+  [class*="file-list"] {
+    padding: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  [class*="card"],
+  [class*="file-item"],
+  [class*="item"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 12px !important;
+    min-height: var(--touch-min) !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  button,
+  [class*="button"],
+  .btn,
+  a[class*="download"],
+  [class*="download"] a {
+    min-height: var(--touch-min) !important;
+    min-width: var(--touch-min) !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+  }
+
+  /* Prevent horizontal overflow */
+  * {
+    box-sizing: border-box !important;
+  }
+
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Extra-small phones: larger tap targets */
+@media (max-width: 480px) {
+  body {
+    font-size: 16px;
+  }
+
+  [class*="card"],
+  [class*="file-item"],
+  [class*="item"] {
+    padding: 14px !important;
+    min-height: 48px !important;
+  }
+
+  button,
+  [class*="button"],
+  .btn {
+    min-height: 48px !important;
+    min-width: 48px !important;
+    padding: 14px !important;
+  }
+}
+
+/* Desktop: enhance from mobile base */
+@media (min-width: 769px) {
+  body {
+    font-size: 14px;
+  }
+}

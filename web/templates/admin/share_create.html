@@ -1,0 +1,34 @@
+{{define "admin/share_create"}}
+{{template "admin/base" .}}
+{{end}}
+
+{{define "title"}}Create Share{{end}}
+
+{{define "body"}}
+<h1>Create Share</h1>
+
+{{if .Success}}
+<p style="color: green;">{{.Success}}</p>
+<p>Share URL: <a href="{{.ShareURL}}">{{.ShareURL}}</a></p>
+<button onclick="navigator.clipboard.writeText('{{.ShareURL}}')">Copy Link</button>
+{{end}}
+
+<form method="post" action="/share/new">
+  <input type="hidden" name="path" value="{{.Path}}">
+
+  <label>Path: {{.Path}}</label><br>
+
+  <label>Share Name:</label><br>
+  <input name="name" placeholder="My Share" required><br>
+
+  <label>Password (optional):</label><br>
+  <input type="password" name="password" placeholder="Leave empty for no password"><br>
+
+  <label>Expires (optional):</label><br>
+  <input type="date" name="expires"><br>
+
+  <button type="submit">Create Share</button>
+</form>
+
+<p><a href="/files">Back to Files</a></p>
+{{end}}

@@ -1,0 +1,17 @@
+# Local dev. See docs/plan-from-scratch.md. Run from repo root: docker compose -f docker/docker-compose.yml up
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file: ../.env
+    environment:
+      PORT: "8080"
+      ROOT: /data
+      DB_PATH: /data/db/app.sqlite
+    volumes:
+      - app_data:/data
+volumes:
+  app_data: {}
