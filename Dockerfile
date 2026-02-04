@@ -5,6 +5,7 @@ WORKDIR /build
 
 # Copy go mod files
 COPY go.mod ./
+RUN go mod tidy
 RUN go mod download
 
 # Copy source code
