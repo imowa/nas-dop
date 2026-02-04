@@ -10,7 +10,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-//go:embed ../../migrations/*.sql
+//go:embed migrations/*.sql
 var migrationsFS embed.FS
 
 // DB wraps a SQLite database connection.
