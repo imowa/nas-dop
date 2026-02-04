@@ -3,13 +3,12 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /build
 
-# Copy go mod files
-COPY go.mod ./
+# Copy source code first
+COPY . .
+
+# Generate go.sum with correct dependencies
 RUN go mod tidy
 RUN go mod download
-
-# Copy source code
-COPY . .
 
 # Build binary
 RUN CGO_ENABLED=1 GOOS=linux go build -o nas-dop ./cmd/server
