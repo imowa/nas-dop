@@ -3,8 +3,8 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /build
 
-# Install git for direct downloads
-RUN apk add --no-cache git
+# Install git and build tools for CGO
+RUN apk add --no-cache git build-base
 
 # Copy source code first
 COPY . .
