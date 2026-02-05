@@ -6,9 +6,9 @@ WORKDIR /build
 # Copy source code first
 COPY . .
 
-# Generate go.sum with correct dependencies
+# Generate go.sum with correct dependencies (use direct downloads to avoid proxy issues)
+RUN GOPROXY=direct go mod download
 RUN go mod tidy
-RUN go mod download
 
 # Build binary
 RUN CGO_ENABLED=1 GOOS=linux go build -o nas-dop ./cmd/server
