@@ -11,7 +11,7 @@ COPY . .
 
 # Download dependencies (use default GOPROXY with fallbacks)
 RUN go mod download || go mod download
-RUN go mod tidy || true
+RUN go mod tidy || go mod tidy
 
 # Build binary
 RUN CGO_ENABLED=1 GOOS=linux go build -o nas-dop ./cmd/server
