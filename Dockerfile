@@ -9,9 +9,9 @@ RUN apk add --no-cache git build-base
 # Copy source code first
 COPY . .
 
-# Generate go.sum with correct dependencies (use direct downloads to avoid proxy issues)
-RUN GOPROXY=direct go mod download
-RUN go mod tidy
+# Download dependencies (use default GOPROXY with fallbacks)
+RUN go mod download || go mod download
+RUN go mod tidy || true
 
 # Build binary
 RUN CGO_ENABLED=1 GOOS=linux go build -o nas-dop ./cmd/server
