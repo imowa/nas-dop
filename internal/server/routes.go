@@ -36,6 +36,8 @@ func (s *Server) routes() {
 	adminMux.HandleFunc("GET /files/download/{path...}", s.handleDownload)
 	adminMux.HandleFunc("GET /share/new", s.handleShareForm)
 	adminMux.HandleFunc("POST /share/new", s.handleShareCreate)
+	adminMux.HandleFunc("GET /shares", s.handleSharesList)
+	adminMux.HandleFunc("POST /shares/delete", s.handleShareDelete)
 	adminMux.HandleFunc("GET /files/thumb/{path...}", s.handleFilesThumb)
 
 	s.mux.Handle("/", auth.RequireAuth(s.sessionStore, adminMux))

@@ -1,0 +1,79 @@
+{{define "admin/shares"}}
+{{template "admin/base" .}}
+{{end}}
+
+{{define "title"}}Manage Shares{{end}}
+
+{{define "body"}}
+<h1>Manage Shares</h1>
+
+<p><a href="/files">← Back to Files</a></p>
+
+{{if .Success}}
+<p style="color: green;">{{.Success}}</p>
+{{end}}
+
+{{if .Shares}}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Path</th>
+      <th>Created</th>
+      <th>Expires</th>
+      <th>Protected</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range .Shares}}
+    <tr>
+      <td>{{.Name}}</td>
+      <td>{{.Path}}</td>
+      <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+      <td>
+        {{if .ExpiresAt}}
+          {{.ExpiresAt.Format "2006-01-02"}}
+        {{else}}
+          Never
+        {{end}}
+      </td>
+      <td>
+        {{if .PasswordHash}}
+          🔒 Yes
+        {{else}}
+          No
+        {{end}}
+      </td>
+      <td>
+        <a href="/share/{{.Token}}" target="_blank">View</a>
+        <button type="button" class="copy-btn" data-url="{{$.BaseURL}}/share/{{.Token}}">Copy Link</button>
+        <form method="post" action="/shares/delete" style="display:inline;">
+          <input type="hidden" name="token" value="{{.Token}}">
+          <button type="submit" onclick="return confirm('Delete share \'{{.Name}}\'?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p>No shares created yet. <a href="/files">Go to files</a> to create a share.</p>
+{{end}}
+
+<script>
+// Copy link functionality
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const url = btn.dataset.url;
+    navigator.clipboard.writeText(url).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    });
+  });
+});
+</script>
+{{end}}

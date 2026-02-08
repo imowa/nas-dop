@@ -28,8 +28,10 @@ type Server struct {
 
 // New builds a new Server with all dependencies wired.
 func New(cfg *config.Config, database *db.DB) (*Server, error) {
-	// Parse templates from embedded FS
-	tmpl, err := template.ParseFS(web.FS, "templates/**/*.html")
+	// Parse templates from embedded FS with custom functions
+	tmpl, err := template.New("").Funcs(template.FuncMap{
+		"formatBytes": FormatBytes,
+	}).ParseFS(web.FS, "templates/**/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("parse templates: %w", err)
 	}

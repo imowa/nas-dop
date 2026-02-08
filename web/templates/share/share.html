@@ -35,10 +35,26 @@
           {{if .IsDir}}
             📁 {{.Name}}
           {{else}}
-            📄 {{.Name}}
+            {{$ext := .Ext}}
+            {{if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".gif") (eq $ext ".webp")}}
+              <img src="/share/{{$.Token}}/thumb/{{.Name}}" alt="{{.Name}}" style="max-width:60px;max-height:60px;vertical-align:middle;margin-right:8px;border-radius:4px;">
+              🖼️ {{.Name}}
+            {{else if or (eq $ext ".pdf")}}
+              📕 {{.Name}}
+            {{else if or (eq $ext ".zip") (eq $ext ".tar") (eq $ext ".gz") (eq $ext ".rar")}}
+              📦 {{.Name}}
+            {{else if or (eq $ext ".mp4") (eq $ext ".avi") (eq $ext ".mov") (eq $ext ".mkv")}}
+              📹 {{.Name}}
+            {{else if or (eq $ext ".mp3") (eq $ext ".wav") (eq $ext ".flac") (eq $ext ".m4a")}}
+              🎵 {{.Name}}
+            {{else if or (eq $ext ".doc") (eq $ext ".docx") (eq $ext ".txt") (eq $ext ".md")}}
+              📝 {{.Name}}
+            {{else}}
+              📄 {{.Name}}
+            {{end}}
           {{end}}
         </td>
-        <td>{{if not .IsDir}}{{.Size}} bytes{{end}}</td>
+        <td>{{if not .IsDir}}{{formatBytes .Size}}{{end}}</td>
         <td>
           {{if not .IsDir}}
             <a href="/share/{{$.Token}}/dl/{{.Name}}">Download</a>

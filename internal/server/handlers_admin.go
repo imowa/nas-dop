@@ -270,13 +270,52 @@ func (s *Server) handleShareCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shareURL := fmt.Sprintf("http://%s/share/%s", r.Host, share.Token)
+	// Detect protocol from request
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	shareURL := fmt.Sprintf("%s://%s/share/%s", scheme, r.Host, share.Token)
 
 	s.render(w, "admin/share_create", map[string]interface{}{
 		"Path":     path,
 		"Success":  "Share created successfully!",
 		"ShareURL": shareURL,
 	})
+}
+
+// handleSharesList displays all shares for management.
+func (s *Server) handleSharesList(w http.ResponseWriter, r *http.Request) {
+	shares, err := s.shareStore.List()
+	if err != nil {
+		http.Error(w, "Failed to list shares", 500)
+		return
+	}
+
+	// Detect protocol for base URL
+	scheme := "http"
+	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+		scheme = "https"
+	}
+	baseURL := fmt.Sprintf("%s://%s", scheme, r.Host)
+
+	s.render(w, "admin/shares", map[string]interface{}{
+		"Shares":  shares,
+		"BaseURL": baseURL,
+		"Success": "",
+	})
+}
+
+// handleShareDelete deletes a share.
+func (s *Server) handleShareDelete(w http.ResponseWriter, r *http.Request) {
+	token := r.FormValue("token")
+
+	if err := s.shareStore.Delete(token); err != nil {
+		http.Error(w, "Failed to delete share", 500)
+		return
+	}
+
+	http.Redirect(w, r, "/shares?success=deleted", http.StatusSeeOther)
 }
 
 // buildBreadcrumbs creates breadcrumb navigation from a path.

@@ -45,16 +45,33 @@
         {{if .IsDir}}
           <a href="/files{{$.Path}}/{{.Name}}">📁 {{.Name}}</a>
         {{else}}
-          📄 {{.Name}}
+          {{$ext := .Ext}}
+          {{if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".gif") (eq $ext ".webp")}}
+            <img src="/files/thumb{{$.Path}}/{{.Name}}" alt="{{.Name}}" style="max-width:60px;max-height:60px;vertical-align:middle;margin-right:8px;border-radius:4px;">
+            🖼️ {{.Name}}
+          {{else if or (eq $ext ".pdf")}}
+            📕 {{.Name}}
+          {{else if or (eq $ext ".zip") (eq $ext ".tar") (eq $ext ".gz") (eq $ext ".rar")}}
+            📦 {{.Name}}
+          {{else if or (eq $ext ".mp4") (eq $ext ".avi") (eq $ext ".mov") (eq $ext ".mkv")}}
+            📹 {{.Name}}
+          {{else if or (eq $ext ".mp3") (eq $ext ".wav") (eq $ext ".flac") (eq $ext ".m4a")}}
+            🎵 {{.Name}}
+          {{else if or (eq $ext ".doc") (eq $ext ".docx") (eq $ext ".txt") (eq $ext ".md")}}
+            📝 {{.Name}}
+          {{else}}
+            📄 {{.Name}}
+          {{end}}
         {{end}}
       </td>
-      <td>{{if not .IsDir}}{{.Size}} bytes{{end}}</td>
+      <td>{{if not .IsDir}}{{formatBytes .Size}}{{end}}</td>
       <td>{{.ModTime.Format "2006-01-02 15:04"}}</td>
       <td>
         {{if not .IsDir}}
           <a href="/files/download{{$.Path}}/{{.Name}}">Download</a>
         {{end}}
         <a href="/share/new?path={{$.Path}}/{{.Name}}">Share</a>
+        <button type="button" class="rename-btn" data-path="{{$.Path}}/{{.Name}}" data-name="{{.Name}}">Rename</button>
         <form method="post" action="/files/delete" style="display:inline;">
           <input type="hidden" name="path" value="{{$.Path}}/{{.Name}}">
           <button type="submit" onclick="return confirm('Delete {{.Name}}?')">Delete</button>
@@ -65,5 +82,53 @@
   </tbody>
 </table>
 
-<p><a href="/logout">Logout</a></p>
+<p>
+  <a href="/shares">Manage Shares</a> |
+  <a href="/logout">Logout</a>
+</p>
+
+<!-- Rename Modal -->
+<div id="renameModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:2rem;border-radius:8px;max-width:400px;width:90%;">
+    <h2 style="margin-top:0;">Rename File</h2>
+    <form id="renameForm" method="post" action="/files/rename">
+      <input type="hidden" name="path" id="renamePath">
+      <input type="text" name="newName" id="renameInput" placeholder="New name" required style="width:100%;margin-bottom:1rem;">
+      <div style="display:flex;gap:0.5rem;justify-content:flex-end;">
+        <button type="button" id="cancelRename" style="background:#6c757d;">Cancel</button>
+        <button type="submit">Rename</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Rename functionality
+const modal = document.getElementById('renameModal');
+const form = document.getElementById('renameForm');
+const pathInput = document.getElementById('renamePath');
+const nameInput = document.getElementById('renameInput');
+
+document.querySelectorAll('.rename-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const path = btn.dataset.path;
+    const name = btn.dataset.name;
+    pathInput.value = path;
+    nameInput.value = name;
+    modal.style.display = 'flex';
+    nameInput.focus();
+    nameInput.select();
+  });
+});
+
+document.getElementById('cancelRename').addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.style.display = 'none';
+  }
+});
+</script>
 {{end}}

@@ -22,6 +22,7 @@ type FileInfo struct {
 	Size    int64
 	ModTime time.Time
 	IsDir   bool
+	Ext     string // File extension (e.g., ".jpg", ".pdf")
 }
 
 // New creates a new Storage instance.
@@ -81,11 +82,15 @@ func (s *Storage) List(relPath string) ([]FileInfo, error) {
 			continue
 		}
 
+		// Extract file extension (lowercase)
+		ext := strings.ToLower(filepath.Ext(entry.Name()))
+
 		files = append(files, FileInfo{
 			Name:    entry.Name(),
 			Size:    info.Size(),
 			ModTime: info.ModTime(),
 			IsDir:   entry.IsDir(),
+			Ext:     ext,
 		})
 	}
 
