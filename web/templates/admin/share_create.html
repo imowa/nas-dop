@@ -18,14 +18,14 @@
 
   <label>Path: {{.Path}}</label><br>
 
-  <label>Share Name:</label><br>
-  <input name="name" placeholder="My Share" required><br>
+  <label for="share-name">Share Name:</label><br>
+  <input id="share-name" name="name" type="text" placeholder="My Share" autocomplete="off" required><br>
 
-  <label>Password (optional):</label><br>
-  <input type="password" name="password" placeholder="Leave empty for no password"><br>
+  <label for="share-password">Password (optional):</label><br>
+  <input id="share-password" type="password" name="password" placeholder="Leave empty for no password" autocomplete="new-password"><br>
 
-  <label>Expires (optional):</label><br>
-  <input type="date" name="expires"><br>
+  <label for="share-expires">Expires (optional):</label><br>
+  <input id="share-expires" type="date" name="expires" autocomplete="off"><br>
 
   <button type="submit">Create Share</button>
 </form>
