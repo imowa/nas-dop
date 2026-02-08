@@ -14,7 +14,7 @@ import (
 
 // handleLoginForm renders the login page.
 func (s *Server) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	s.render(w, "admin/login.html", map[string]interface{}{
+	s.render(w, "admin/login", map[string]interface{}{
 		"Error": "",
 	})
 }
@@ -28,7 +28,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	var passwordHash string
 	err := s.db.DB().QueryRow("SELECT password_hash FROM users WHERE username = ?", username).Scan(&passwordHash)
 	if err == sql.ErrNoRows {
-		s.render(w, "admin/login.html", map[string]interface{}{
+		s.render(w, "admin/login", map[string]interface{}{
 			"Error": "Invalid username or password",
 		})
 		return
@@ -40,7 +40,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	// Validate password
 	if !auth.CheckPassword(passwordHash, password) {
-		s.render(w, "admin/login.html", map[string]interface{}{
+		s.render(w, "admin/login", map[string]interface{}{
 			"Error": "Invalid username or password",
 		})
 		return
@@ -106,7 +106,7 @@ func (s *Server) handleFilesList(w http.ResponseWriter, r *http.Request) {
 	// Build breadcrumbs
 	breadcrumbs := buildBreadcrumbs(path)
 
-	s.render(w, "admin/files.html", map[string]interface{}{
+	s.render(w, "admin/files", map[string]interface{}{
 		"Path":        path,
 		"Files":       files,
 		"Breadcrumbs": breadcrumbs,
@@ -242,7 +242,7 @@ func (s *Server) handleFilesThumb(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleShareForm(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 
-	s.render(w, "admin/share_create.html", map[string]interface{}{
+	s.render(w, "admin/share_create", map[string]interface{}{
 		"Path":    path,
 		"Success": "",
 		"ShareURL": "",
@@ -272,7 +272,7 @@ func (s *Server) handleShareCreate(w http.ResponseWriter, r *http.Request) {
 
 	shareURL := fmt.Sprintf("http://%s/share/%s", r.Host, share.Token)
 
-	s.render(w, "admin/share_create.html", map[string]interface{}{
+	s.render(w, "admin/share_create", map[string]interface{}{
 		"Path":     path,
 		"Success":  "Share created successfully!",
 		"ShareURL": shareURL,

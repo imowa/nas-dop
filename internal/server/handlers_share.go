@@ -32,7 +32,7 @@ func (s *Server) handleSharePage(w http.ResponseWriter, r *http.Request) {
 		// Check if password validated in cookie
 		cookie, err := r.Cookie("share_" + token)
 		if err != nil || cookie.Value != "validated" {
-			s.render(w, "share/share_password.html", map[string]interface{}{
+			s.render(w, "share/share_password", map[string]interface{}{
 				"Token": token,
 				"Error": "",
 			})
@@ -47,7 +47,7 @@ func (s *Server) handleSharePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.render(w, "share/share.html", map[string]interface{}{
+	s.render(w, "share/share", map[string]interface{}{
 		"Token": token,
 		"Name":  sh.Name,
 		"Path":  sh.Path,
@@ -69,7 +69,7 @@ func (s *Server) handleSharePassword(w http.ResponseWriter, r *http.Request) {
 
 	// Validate password
 	if !share.ValidatePassword(sh, password) {
-		s.render(w, "share/share_password.html", map[string]interface{}{
+		s.render(w, "share/share_password", map[string]interface{}{
 			"Token": token,
 			"Error": "Invalid password",
 		})
