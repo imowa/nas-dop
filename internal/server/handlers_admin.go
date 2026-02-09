@@ -93,9 +93,6 @@ func (s *Server) handleAdminRoot(w http.ResponseWriter, r *http.Request) {
 // handleFilesList lists files in a directory.
 func (s *Server) handleFilesList(w http.ResponseWriter, r *http.Request) {
 	path := r.PathValue("path")
-	if path == "" {
-		path = "/"
-	}
 
 	files, err := s.storage.List(path)
 	if err != nil {
@@ -116,9 +113,6 @@ func (s *Server) handleFilesList(w http.ResponseWriter, r *http.Request) {
 // handleUpload handles file uploads.
 func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 	path := r.FormValue("path")
-	if path == "" {
-		path = "/"
-	}
 
 	// Parse multipart form
 	err := r.ParseMultipartForm(s.cfg.MaxUploadBytes)
@@ -320,7 +314,7 @@ func (s *Server) handleShareDelete(w http.ResponseWriter, r *http.Request) {
 
 // buildBreadcrumbs creates breadcrumb navigation from a path.
 func buildBreadcrumbs(path string) []map[string]string {
-	if path == "/" {
+	if path == "/" || path == "" {
 		return []map[string]string{
 			{"Name": "Home", "Path": "/"},
 		}
