@@ -1,10 +1,12 @@
-{{define "admin/shares"}}
-{{template "admin/base" .}}
-{{end}}
-
-{{define "title"}}Manage Shares{{end}}
-
-{{define "body"}}
+{{define "admin/shares"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Shares</title>
+  <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
 <h1>Manage Shares</h1>
 
 <p><a href="/files">← Back to Files</a></p>
@@ -76,4 +78,5 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   });
 });
 </script>
-{{end}}
+</body>
+</html>{{end}}
