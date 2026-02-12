@@ -29,7 +29,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	var passwordHash string
 	err := s.db.DB().QueryRow("SELECT password_hash FROM users WHERE username = ?", username).Scan(&passwordHash)
 	if err == sql.ErrNoRows {
-		s.render(w, "admin/login", map[string]interface{
+		s.render(w, "admin/login", map[string]interface{}{
 			"Error": "Invalid username or password",
 		})
 		return
