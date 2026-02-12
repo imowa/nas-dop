@@ -34,13 +34,15 @@ func (s *Server) routes() {
 	adminMux.HandleFunc("POST /files/delete", s.handleDelete)
 	adminMux.HandleFunc("POST /files/rename", s.handleRename)
 	adminMux.HandleFunc("GET /files/download/{path...}", s.handleDownload)
-	adminMux.HandleFunc("GET /share/new", s.handleShareForm)
-	adminMux.HandleFunc("POST /share/new", s.handleShareCreate)
 	adminMux.HandleFunc("GET /shares", s.handleSharesList)
 	adminMux.HandleFunc("POST /shares/delete", s.handleShareDelete)
 	adminMux.HandleFunc("GET /files/thumb/{path...}", s.handleFilesThumb)
 
 	s.mux.Handle("/", auth.RequireAuth(s.sessionStore, adminMux))
+
+	// Share creation routes (require auth) - must be registered before wildcard /share/{token}
+	s.mux.Handle("GET /share/new", auth.RequireAuth(s.sessionStore, http.HandlerFunc(s.handleShareForm)))
+	s.mux.Handle("POST /share/new", auth.RequireAuth(s.sessionStore, http.HandlerFunc(s.handleShareCreate)))
 
 	// Share routes (public, no auth)
 	s.mux.HandleFunc("GET /share/{token}", s.handleSharePage)
