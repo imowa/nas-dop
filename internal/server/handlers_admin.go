@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -28,12 +29,13 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	var passwordHash string
 	err := s.db.DB().QueryRow("SELECT password_hash FROM users WHERE username = ?", username).Scan(&passwordHash)
 	if err == sql.ErrNoRows {
-		s.render(w, "admin/login", map[string]interface{}{
+		s.render(w, "admin/login", map[string]interface{
 			"Error": "Invalid username or password",
 		})
 		return
 	}
 	if err != nil {
+		log.Printf("login: database query error for user %q: %v", username, err)
 		http.Error(w, "Internal server error", 500)
 		return
 	}
@@ -49,6 +51,7 @@ func (s *Server) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := s.sessionStore.Create(username, sessionDuration)
 	if err != nil {
+		log.Printf("login: failed to create session for user %q: %v", username, err)
 		http.Error(w, "Internal server error", 500)
 		return
 	}
@@ -96,6 +99,7 @@ func (s *Server) handleFilesList(w http.ResponseWriter, r *http.Request) {
 
 	files, err := s.storage.List(path)
 	if err != nil {
+		log.Printf("files: failed to list files at path %q: %v", path, err)
 		http.Error(w, "Failed to list files", 500)
 		return
 	}
@@ -121,6 +125,7 @@ func (s *Server) handleUpload(w http.ResponseWriter, r *http.Request) {
 			WriteRequestEntityTooLarge(w)
 			return
 		}
+		log.Printf("upload: failed to parse form at path %q: %v", path, err)
 		http.Error(w, "Failed to parse form", 400)
 		return
 	}
@@ -160,6 +165,7 @@ func (s *Server) handleMkdir(w http.ResponseWriter, r *http.Request) {
 
 	newPath := filepath.Join(path, name)
 	if err := s.storage.Mkdir(newPath); err != nil {
+		log.Printf("mkdir: failed to create directory %q: %v", newPath, err)
 		http.Error(w, "Failed to create directory", 500)
 		return
 	}
@@ -172,6 +178,7 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request) {
 	path := r.FormValue("path")
 
 	if err := s.storage.Delete(path); err != nil {
+		log.Printf("delete: failed to delete %q: %v", path, err)
 		http.Error(w, "Failed to delete", 500)
 		return
 	}
@@ -192,6 +199,7 @@ func (s *Server) handleRename(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.storage.Rename(path, newName); err != nil {
+		log.Printf("rename: failed to rename %q to %q: %v", path, newName, err)
 		http.Error(w, "Failed to rename", 500)
 		return
 	}
@@ -207,6 +215,7 @@ func (s *Server) handleDownload(w http.ResponseWriter, r *http.Request) {
 
 	data, err := s.storage.Read(path)
 	if err != nil {
+		log.Printf("download: failed to read file %q: %v", path, err)
 		http.Error(w, "File not found", 404)
 		return
 	}
@@ -223,6 +232,7 @@ func (s *Server) handleFilesThumb(w http.ResponseWriter, r *http.Request) {
 
 	data, err := s.storage.GenerateThumbnail(path, s.cfg.ThumbMaxSizeAdmin)
 	if err != nil {
+		log.Printf("thumbnail: failed to generate thumbnail for %q: %v", path, err)
 		http.Error(w, "Thumbnail not available", 404)
 		return
 	}
@@ -260,6 +270,7 @@ func (s *Server) handleShareCreate(w http.ResponseWriter, r *http.Request) {
 
 	share, err := s.shareStore.Create(path, name, password, expiresAt)
 	if err != nil {
+		log.Printf("share: failed to create share for path %q: %v", path, err)
 		http.Error(w, "Failed to create share", 500)
 		return
 	}
@@ -282,6 +293,7 @@ func (s *Server) handleShareCreate(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleSharesList(w http.ResponseWriter, r *http.Request) {
 	shares, err := s.shareStore.List()
 	if err != nil {
+		log.Printf("shares: failed to list shares: %v", err)
 		http.Error(w, "Failed to list shares", 500)
 		return
 	}
@@ -305,6 +317,7 @@ func (s *Server) handleShareDelete(w http.ResponseWriter, r *http.Request) {
 	token := r.FormValue("token")
 
 	if err := s.shareStore.Delete(token); err != nil {
+		log.Printf("share: failed to delete share with token %q: %v", token, err)
 		http.Error(w, "Failed to delete share", 500)
 		return
 	}

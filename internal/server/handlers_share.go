@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,7 @@ func (s *Server) handleSharePage(w http.ResponseWriter, r *http.Request) {
 	// Load share
 	sh, err := s.shareStore.GetByToken(token)
 	if err != nil {
+		log.Printf("share: failed to load share with token %q: %v", token, err)
 		http.Error(w, "Share not found", 404)
 		return
 	}
@@ -43,6 +45,7 @@ func (s *Server) handleSharePage(w http.ResponseWriter, r *http.Request) {
 	// List files
 	files, err := s.storage.List(sh.Path)
 	if err != nil {
+		log.Printf("share: failed to list files for share %q at path %q: %v", token, sh.Path, err)
 		http.Error(w, "Failed to list files", 500)
 		return
 	}
@@ -63,6 +66,7 @@ func (s *Server) handleSharePassword(w http.ResponseWriter, r *http.Request) {
 	// Load share
 	sh, err := s.shareStore.GetByToken(token)
 	if err != nil {
+		log.Printf("share: failed to load share with token %q: %v", token, err)
 		http.Error(w, "Share not found", 404)
 		return
 	}
@@ -126,6 +130,7 @@ func (s *Server) handleShareDownload(w http.ResponseWriter, r *http.Request) {
 	// Read file
 	data, err := s.storage.Read(fullPath)
 	if err != nil {
+		log.Printf("share: failed to read file %q for share %q: %v", fullPath, token, err)
 		http.Error(w, "File not found", 404)
 		return
 	}
@@ -173,6 +178,7 @@ func (s *Server) handleShareThumb(w http.ResponseWriter, r *http.Request) {
 	// Generate thumbnail
 	data, err := s.storage.GenerateThumbnail(fullPath, s.cfg.ThumbMaxSizeShare)
 	if err != nil {
+		log.Printf("share: failed to generate thumbnail for %q in share %q: %v", fullPath, token, err)
 		http.Error(w, "Thumbnail not available", 404)
 		return
 	}
@@ -210,6 +216,7 @@ func (s *Server) handleShareZip(w http.ResponseWriter, r *http.Request) {
 
 	// Parse selected file paths from form
 	if err := r.ParseForm(); err != nil {
+		log.Printf("share: failed to parse form for ZIP in share %q: %v", token, err)
 		http.Error(w, "Invalid form data", 400)
 		return
 	}
@@ -245,6 +252,7 @@ func (s *Server) handleShareZip(w http.ResponseWriter, r *http.Request) {
 	if err := s.storage.CreateZip(w, fullPaths, limits); err != nil {
 		// Can't send error response after headers are sent
 		// Log the error instead
+		log.Printf("share: failed to create ZIP for share %q: %v", token, err)
 		return
 	}
 }
