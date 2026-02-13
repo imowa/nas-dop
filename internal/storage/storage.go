@@ -34,32 +34,37 @@ func New(root string, puid, pgid int) *Storage {
 	}
 }
 
-// validatePath checks if a relative path is safe (no .. traversal, no absolute paths).
-func (s *Storage) validatePath(relPath string) error {
-	if filepath.IsAbs(relPath) {
-		return fmt.Errorf("absolute paths not allowed")
-	}
-	if strings.Contains(relPath, "..") {
-		return fmt.Errorf("path traversal not allowed")
-	}
-	return nil
-}
-
-// resolvePath validates and resolves a relative path to an absolute path within root.
+// resolvePath validates and resolves a path to an absolute path within root.
+// Accepts both relative paths and paths with leading slashes (treated as relative to root).
 func (s *Storage) resolvePath(relPath string) (string, error) {
-	if err := s.validatePath(relPath); err != nil {
-		return "", err
+	// Clean and normalize the path
+	cleaned := filepath.Clean(relPath)
+	
+	// Remove leading slash if present (treat as relative to root)
+	// This allows paths like "/customer" and "customer" to work identically
+	cleaned = strings.TrimPrefix(cleaned, "/")
+	cleaned = strings.TrimPrefix(cleaned, "\\") // Windows support
+	
+	// Handle empty path (root)
+	if cleaned == "." || cleaned == "" {
+		cleaned = ""
 	}
-
-	// Join with root and clean
-	absPath := filepath.Join(s.root, relPath)
+	
+	// Check for path traversal attempts
+	if strings.Contains(cleaned, "..") {
+		return "", fmt.Errorf("path traversal not allowed")
+	}
+	
+	// Join with root
+	absPath := filepath.Join(s.root, cleaned)
 	absPath = filepath.Clean(absPath)
-
+	
 	// Verify result is within root (prevent traversal)
-	if !strings.HasPrefix(absPath, s.root) {
+	rootClean := filepath.Clean(s.root)
+	if !strings.HasPrefix(absPath, rootClean) {
 		return "", fmt.Errorf("path outside root directory")
 	}
-
+	
 	return absPath, nil
 }
 
