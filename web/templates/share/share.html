@@ -8,16 +8,110 @@
   <link rel="stylesheet" href="/static/css/share.css">
 </head>
 <body>
-<h1>{{.Name}}</h1>
-<p>Shared folder: {{.Path}}</p>
+<!-- Header -->
+<header>
+  <h1>{{.Name}}</h1>
+  <p>📁 {{.Path}}</p>
+</header>
 
-<form id="zipForm" method="post" action="/share/{{.Token}}/zip">
-  <button type="submit">Download Selected as ZIP</button>
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <input type="checkbox" id="selectAll" title="Select all files">
+    <label for="selectAll" style="font-size: 0.875rem; color: var(--text-secondary);">Select all</label>
+    <span id="fileCount" class="file-count"></span>
+  </div>
+  
+  <div class="toolbar-right">
+    <div class="view-switcher">
+      <button id="gridViewBtn" class="view-btn" title="Grid view" aria-label="Grid view">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+        </svg>
+      </button>
+      <button id="listViewBtn" class="view-btn" title="List view" aria-label="List view">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <form id="zipForm" method="post" action="/share/{{.Token}}/zip" style="margin: 0;">
+      <button type="submit" id="downloadBtn" disabled>📥 Download Selected</button>
+    </form>
+  </div>
+</div>
 
+<!-- Grid View -->
+<div id="gridView">
+  {{range .Files}}
+    {{if not .IsDir}}
+      <div class="grid-item" data-filename="{{.Name}}">
+        <div class="grid-item-thumbnail">
+          {{$ext := .Ext}}
+          {{if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".gif") (eq $ext ".webp")}}
+            <img src="/share/{{$.Token}}/thumb/{{.Name}}" 
+                 alt="{{.Name}}" 
+                 class="preview-thumbnail"
+                 data-filename="{{.Name}}"
+                 loading="lazy">
+          {{else if or (eq $ext ".pdf")}}
+            <div class="file-icon">📕</div>
+          {{else if or (eq $ext ".zip") (eq $ext ".tar") (eq $ext ".gz") (eq $ext ".rar")}}
+            <div class="file-icon">📦</div>
+          {{else if or (eq $ext ".mp4") (eq $ext ".avi") (eq $ext ".mov") (eq $ext ".mkv")}}
+            <div class="file-icon">📹</div>
+          {{else if or (eq $ext ".mp3") (eq $ext ".wav") (eq $ext ".flac") (eq $ext ".m4a")}}
+            <div class="file-icon">🎵</div>
+          {{else if or (eq $ext ".doc") (eq $ext ".docx") (eq $ext ".txt") (eq $ext ".md")}}
+            <div class="file-icon">📝</div>
+          {{else}}
+            <div class="file-icon">📄</div>
+          {{end}}
+          
+          <input type="checkbox" 
+                 name="paths[]" 
+                 value="{{.Name}}" 
+                 class="fileCheckbox grid-item-checkbox"
+                 form="zipForm"
+                 aria-label="Select {{.Name}}">
+        </div>
+        
+        <div class="grid-item-info">
+          <p class="grid-item-name" title="{{.Name}}">{{.Name}}</p>
+          <p class="grid-item-size">{{formatBytes .Size}}</p>
+        </div>
+        
+        <div class="grid-item-actions">
+          <a href="/share/{{$.Token}}/dl/{{.Name}}" 
+             class="icon-btn" 
+             title="Download"
+             aria-label="Download {{.Name}}">
+            ⬇️
+          </a>
+        </div>
+      </div>
+    {{else}}
+      <!-- Folders in grid view -->
+      <div class="grid-item" data-filename="{{.Name}}">
+        <div class="grid-item-thumbnail">
+          <div class="file-icon">📁</div>
+        </div>
+        <div class="grid-item-info">
+          <p class="grid-item-name" title="{{.Name}}">{{.Name}}</p>
+          <p class="grid-item-size">Folder</p>
+        </div>
+      </div>
+    {{end}}
+  {{end}}
+</div>
+
+<!-- List View -->
+<div id="listView">
   <table>
     <thead>
       <tr>
-        <th><input type="checkbox" id="selectAll"></th>
+        <th><input type="checkbox" id="selectAllList" style="display: none;"></th>
         <th>Name</th>
         <th>Size</th>
         <th>Actions</th>
@@ -28,31 +122,49 @@
       <tr>
         <td>
           {{if not .IsDir}}
-            <input type="checkbox" name="paths[]" value="{{.Name}}" class="fileCheckbox">
+            <input type="checkbox" 
+                   name="paths[]" 
+                   value="{{.Name}}" 
+                   class="fileCheckbox"
+                   form="zipForm"
+                   aria-label="Select {{.Name}}">
           {{end}}
         </td>
         <td>
-          {{if .IsDir}}
-            📁 {{.Name}}
-          {{else}}
-            {{$ext := .Ext}}
-            {{if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".gif") (eq $ext ".webp")}}
-              <img src="/share/{{$.Token}}/thumb/{{.Name}}" alt="{{.Name}}" style="max-width:60px;max-height:60px;vertical-align:middle;margin-right:8px;border-radius:4px;">
-              🖼️ {{.Name}}
-            {{else if or (eq $ext ".pdf")}}
-              📕 {{.Name}}
-            {{else if or (eq $ext ".zip") (eq $ext ".tar") (eq $ext ".gz") (eq $ext ".rar")}}
-              📦 {{.Name}}
-            {{else if or (eq $ext ".mp4") (eq $ext ".avi") (eq $ext ".mov") (eq $ext ".mkv")}}
-              📹 {{.Name}}
-            {{else if or (eq $ext ".mp3") (eq $ext ".wav") (eq $ext ".flac") (eq $ext ".m4a")}}
-              🎵 {{.Name}}
-            {{else if or (eq $ext ".doc") (eq $ext ".docx") (eq $ext ".txt") (eq $ext ".md")}}
-              📝 {{.Name}}
+          <div class="file-name-cell">
+            {{if .IsDir}}
+              <div class="file-icon">📁</div>
+              <span>{{.Name}}</span>
             {{else}}
-              📄 {{.Name}}
+              {{$ext := .Ext}}
+              {{if or (eq $ext ".jpg") (eq $ext ".jpeg") (eq $ext ".png") (eq $ext ".gif") (eq $ext ".webp")}}
+                <img src="/share/{{$.Token}}/thumb/{{.Name}}" 
+                     alt="{{.Name}}" 
+                     class="file-thumbnail preview-thumbnail"
+                     data-filename="{{.Name}}"
+                     loading="lazy">
+                <span>{{.Name}}</span>
+              {{else if or (eq $ext ".pdf")}}
+                <div class="file-icon">📕</div>
+                <span>{{.Name}}</span>
+              {{else if or (eq $ext ".zip") (eq $ext ".tar") (eq $ext ".gz") (eq $ext ".rar")}}
+                <div class="file-icon">📦</div>
+                <span>{{.Name}}</span>
+              {{else if or (eq $ext ".mp4") (eq $ext ".avi") (eq $ext ".mov") (eq $ext ".mkv")}}
+                <div class="file-icon">📹</div>
+                <span>{{.Name}}</span>
+              {{else if or (eq $ext ".mp3") (eq $ext ".wav") (eq $ext ".flac") (eq $ext ".m4a")}}
+                <div class="file-icon">🎵</div>
+                <span>{{.Name}}</span>
+              {{else if or (eq $ext ".doc") (eq $ext ".docx") (eq $ext ".txt") (eq $ext ".md")}}
+                <div class="file-icon">📝</div>
+                <span>{{.Name}}</span>
+              {{else}}
+                <div class="file-icon">📄</div>
+                <span>{{.Name}}</span>
+              {{end}}
             {{end}}
-          {{end}}
+          </div>
         </td>
         <td>{{if not .IsDir}}{{formatBytes .Size}}{{end}}</td>
         <td>
@@ -64,15 +176,19 @@
     {{end}}
     </tbody>
   </table>
-</form>
+</div>
 
-<script>
-// Select all functionality
-document.getElementById('selectAll').addEventListener('change', function() {
-  const checkboxes = document.querySelectorAll('.fileCheckbox');
-  checkboxes.forEach(cb => cb.checked = this.checked);
-});
-</script>
+<!-- Image Preview Modal -->
+<div id="imageModal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose" aria-label="Close preview">✕</button>
+    <button class="modal-nav" id="modalPrev" aria-label="Previous image">‹</button>
+    <button class="modal-nav" id="modalNext" aria-label="Next image">›</button>
+    <img id="modalImage" src="" alt="Preview">
+  </div>
+</div>
+
+<script src="/static/js/share.js"></script>
 </body>
 </html>
 {{end}}
